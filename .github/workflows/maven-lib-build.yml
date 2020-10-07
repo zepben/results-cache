@@ -29,5 +29,5 @@ jobs:
           key: maven
 
       - name: Maven build and test
-        run: mvn clean test -f pom.xml -Dserver.username=$NEXUS_USERNAME -Dserver.password=$NEXUS_PASSWORD -Dserver.repo.url=$NEXUS_MAVEN_REPO
+        run: mvn clean test -f pom.xml 
         shell: bash
