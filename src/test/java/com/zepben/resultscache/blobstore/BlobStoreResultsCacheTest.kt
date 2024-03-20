@@ -31,8 +31,8 @@ class BlobStoreResultsCacheTest {
     private val blobWriter = mockk<BlobWriter>(relaxed = true)
 
     private val blobStore = mockk<BlobStore> {
-        every { reader() } returns blobReader
-        every { writer() } returns blobWriter
+        every { reader } returns blobReader
+        every { writer } returns blobWriter
         justRun { close() }
     }
 
@@ -44,7 +44,7 @@ class BlobStoreResultsCacheTest {
         var putCount = 0
 
         every { blobReader[any<String>(), any()] } answers { values[firstArg()] }
-        every { blobWriter.write(any(), any(), any()) } answers {
+        every { blobWriter.write(any(), any(), any(), any(), any()) } answers {
             values[firstArg()] = thirdArg()
             ++putCount
             true
@@ -88,7 +88,7 @@ class BlobStoreResultsCacheTest {
         cache.addTimeToLive(key)
 
         val bytesCaptor = slot<ByteArray>()
-        verify { blobWriter.write(eq(key), eq(BlobStoreResultsCache.TTL_ATTR), capture(bytesCaptor)) }
+        verify { blobWriter.write(eq(key), eq(BlobStoreResultsCache.TTL_ATTR), capture(bytesCaptor), any(), any()) }
         verify { blobWriter.commit() }
 
         assertInstantIsCloseToNow(decodeInstant(bytesCaptor.captured))
@@ -101,7 +101,7 @@ class BlobStoreResultsCacheTest {
         cache.updateTimeToLive(key)
 
         val bytesCaptor = slot<ByteArray>()
-        verify { blobWriter.update(eq(key), eq(BlobStoreResultsCache.TTL_ATTR), capture(bytesCaptor)) }
+        verify { blobWriter.update(eq(key), eq(BlobStoreResultsCache.TTL_ATTR), capture(bytesCaptor), any(), any()) }
         verify { blobWriter.commit() }
 
         assertInstantIsCloseToNow(decodeInstant(bytesCaptor.captured))
@@ -143,8 +143,8 @@ class BlobStoreResultsCacheTest {
         val readerException = BlobStoreException("reader", null)
         val closeException = BlobStoreException("close", null)
 
-        every { blobStore.writer() } throws writerException
-        every { blobStore.reader() } throws readerException
+        every { blobStore.writer } throws writerException
+        every { blobStore.reader } throws readerException
         every { blobStore.close() } throws closeException
 
         expect { cache["key"] }.toThrow<ResultsCacheException>().withMessage(readerException.message!!).withCause(readerException)
