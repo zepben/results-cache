@@ -5,19 +5,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+package com.zepben.resultscache
 
-package com.zepben.resultscache;
-
-import com.zepben.annotations.EverythingIsNonnullByDefault;
-
-import javax.annotation.Nullable;
-import java.time.Duration;
+import java.time.Duration
 
 /**
  * An interface that represents a cache of results.
  */
-@EverythingIsNonnullByDefault
-public interface ResultsCache extends AutoCloseable {
+interface ResultsCache : AutoCloseable {
 
     /**
      * Retrieve a previously stored result.
@@ -26,8 +21,8 @@ public interface ResultsCache extends AutoCloseable {
      * @return if the id is found, the result, otherwise null.
      * @throws ResultsCacheException if there is an error with the cache.
      */
-    @Nullable
-    byte[] get(String key) throws ResultsCacheException;
+    @Throws(ResultsCacheException::class)
+    operator fun get(key: String): ByteArray?
 
     /**
      * Store a result for later use.
@@ -36,7 +31,8 @@ public interface ResultsCache extends AutoCloseable {
      * @return a key that can be used to retrieve the result at a later time, or an empty string if it failed to save.
      * @throws ResultsCacheException if there is an error with the cache.
      */
-    String put(byte[] result) throws ResultsCacheException;
+    @Throws(ResultsCacheException::class)
+    fun put(result: ByteArray): String
 
     /**
      * Add time to live processing to a result.
@@ -44,7 +40,8 @@ public interface ResultsCache extends AutoCloseable {
      * @param key the id previously returned by the cache for the result.
      * @throws ResultsCacheException if there is an error with the cache.
      */
-    void addTimeToLive(String key) throws ResultsCacheException;
+    @Throws(ResultsCacheException::class)
+    fun addTimeToLive(key: String)
 
     /**
      * Update/replace the time to live on a result.
@@ -52,7 +49,8 @@ public interface ResultsCache extends AutoCloseable {
      * @param key the id previously returned by the cache for the result.
      * @throws ResultsCacheException if there is an error with the cache.
      */
-    void updateTimeToLive(String key) throws ResultsCacheException;
+    @Throws(ResultsCacheException::class)
+    fun updateTimeToLive(key: String)
 
     /**
      * Perform the time to live processing on all entries in the cache. Any results that have expired will be removed.
@@ -60,6 +58,7 @@ public interface ResultsCache extends AutoCloseable {
      * @param duration the amount of time the result should live past it's ttl value.
      * @throws ResultsCacheException if there is an error with the cache.
      */
-    void processTimeToLive(Duration duration) throws ResultsCacheException;
+    @Throws(ResultsCacheException::class)
+    fun processTimeToLive(duration: Duration)
 
 }
