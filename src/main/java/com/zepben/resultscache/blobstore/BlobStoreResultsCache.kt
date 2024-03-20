@@ -32,7 +32,7 @@ class BlobStoreResultsCache(
             throw ResultsCacheException("Results cache has been closed", null)
 
         try {
-            return blobStore.reader()[key, RESULTS_ATTR]
+            return blobStore.reader[key, RESULTS_ATTR]
         } catch (e: BlobStoreException) {
             throw ResultsCacheException(e.message, e)
         }
@@ -44,14 +44,14 @@ class BlobStoreResultsCache(
             throw ResultsCacheException("Results cache has been closed", null)
 
         try {
-            val ids = blobStore.reader().ids(RESULTS_ATTR)
+            val ids = blobStore.reader.ids(RESULTS_ATTR)
             var key: String
             do {
                 key = String(Base64.getUrlEncoder().encode(UUID.randomUUID().toString().toByteArray()))
             } while (ids.contains(key))
 
-            if (blobStore.writer().write(key, RESULTS_ATTR, result)) {
-                blobStore.writer().commit()
+            if (blobStore.writer.write(key, RESULTS_ATTR, result)) {
+                blobStore.writer.commit()
                 return key
             } else return ""
         } catch (e: BlobStoreException) {
@@ -65,8 +65,8 @@ class BlobStoreResultsCache(
             throw ResultsCacheException("Results cache has been closed", null)
 
         try {
-            blobStore.writer().write(key, TTL_ATTR, buildTtlValue())
-            blobStore.writer().commit()
+            blobStore.writer.write(key, TTL_ATTR, buildTtlValue())
+            blobStore.writer.commit()
         } catch (e: BlobStoreException) {
             throw ResultsCacheException(e.message, e)
         }
@@ -78,8 +78,8 @@ class BlobStoreResultsCache(
             throw ResultsCacheException("Results cache has been closed", null)
 
         try {
-            blobStore.writer().update(key, TTL_ATTR, buildTtlValue())
-            blobStore.writer().commit()
+            blobStore.writer.update(key, TTL_ATTR, buildTtlValue())
+            blobStore.writer.commit()
         } catch (e: BlobStoreException) {
             throw ResultsCacheException(e.message, e)
         }
@@ -92,13 +92,13 @@ class BlobStoreResultsCache(
 
         try {
             val now = Instant.now()
-            blobStore.reader().getAll(TTL_ATTR).forEach { (id, value) ->
+            blobStore.reader.getAll(TTL_ATTR).forEach { (id, value) ->
                 if (value != null) {
                     val expireTime = Instant.parse(String(value, BYTE_ENCODING)).plus(duration)
 
                     if (now.isAfter(expireTime)) {
-                        blobStore.writer().delete(id)
-                        blobStore.writer().commit()
+                        blobStore.writer.delete(id)
+                        blobStore.writer.commit()
                     }
                 }
             }

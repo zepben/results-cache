@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.zepben</groupId>
             <artifactId>blob-store</artifactId>
-            <version>1.4.0-SNAPSHOT3</version>
+            <version>2.0.0</version>
         </dependency>
 
         <dependency>
