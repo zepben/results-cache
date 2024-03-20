@@ -9,15 +9,16 @@ package com.zepben.resultscache.blobstore
 
 import com.zepben.blobstore.BlobReader
 import com.zepben.blobstore.BlobStore
+import com.zepben.blobstore.BlobStoreException
 import com.zepben.blobstore.BlobWriter
 import com.zepben.resultscache.ResultsCacheException
 import com.zepben.resultscache.blobstore.BlobStoreResultsCache.Companion.BYTE_ENCODING
+import com.zepben.resultscache.blobstore.BlobStoreResultsCache.Companion.RESULTS_ATTR
+import com.zepben.testutils.exception.ExceptionMatcher
 import com.zepben.testutils.exception.ExpectException.Companion.expect
 import io.mockk.*
 import org.hamcrest.MatcherAssert.*
 import org.hamcrest.Matchers.*
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.time.Duration
@@ -126,6 +127,34 @@ class BlobStoreResultsCacheTest {
         verify { blobWriter.commit() }
     }
 
+    @Test
+    internal fun `only returns a key if the blob-store write is successful`() {
+        every { blobWriter.write("key", RESULTS_ATTR, any()) } returns false
+
+        val key = cache.put(ByteArray(0))
+
+        assertThat(key, equalTo(""))
+        verify(exactly = 0) { blobWriter.commit() }
+    }
+
+    @Test
+    internal fun `wraps blob-store exceptions`() {
+        val writerException = BlobStoreException("writer", null)
+        val readerException = BlobStoreException("reader", null)
+        val closeException = BlobStoreException("close", null)
+
+        every { blobStore.writer() } throws writerException
+        every { blobStore.reader() } throws readerException
+        every { blobStore.close() } throws closeException
+
+        expect { cache["key"] }.toThrow<ResultsCacheException>().withMessage(readerException.message!!).withCause(readerException)
+        expect { cache.put(ByteArray(0)) }.toThrow<ResultsCacheException>().withMessage(readerException.message!!).withCause(readerException)
+        expect { cache.addTimeToLive("key") }.toThrow<ResultsCacheException>().withMessage(writerException.message!!).withCause(writerException)
+        expect { cache.updateTimeToLive("key") }.toThrow<ResultsCacheException>().withMessage(writerException.message!!).withCause(writerException)
+        expect { cache.processTimeToLive(Duration.ZERO) }.toThrow<ResultsCacheException>().withMessage(readerException.message!!).withCause(readerException)
+        expect { cache.close() }.toThrow<ResultsCacheException>().withMessage(closeException.message!!).withCause(closeException)
+    }
+
     private fun decodeInstant(instantBytes: ByteArray): Instant {
         val timeStr = String(instantBytes, BYTE_ENCODING)
         return Instant.parse(timeStr)
@@ -134,6 +163,10 @@ class BlobStoreResultsCacheTest {
     private fun assertInstantIsCloseToNow(instant: Instant) {
         val secondsAgo = Instant.now().epochSecond - instant.epochSecond
         assertThat(secondsAgo, lessThanOrEqualTo(1L))
+    }
+
+    private fun ExceptionMatcher<*>.withCause(expectedCause: Throwable) {
+        assertThat(exception.cause, equalTo(expectedCause))
     }
 
     companion object {

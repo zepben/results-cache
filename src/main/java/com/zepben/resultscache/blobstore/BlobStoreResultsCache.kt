@@ -129,6 +129,7 @@ class BlobStoreResultsCache(
         const val RESULTS_ATTR: String = "results"
         const val TTL_ATTR: String = "ttl"
 
+        @Suppress("unused")
         val REQUIRED_ATTRS: Set<String> = setOf(RESULTS_ATTR, TTL_ATTR)
 
     }
