@@ -4,13 +4,14 @@
     <parent>
         <groupId>com.zepben.maven</groupId>
         <artifactId>evolve-super-pom</artifactId>
-        <version>0.23.0</version>
+        <version>0.35.0</version>
         <relativePath/>
     </parent>
 
     <groupId>com.zepben</groupId>
     <artifactId>results-cache</artifactId>
     <version>1.6.0-SNAPSHOT2</version>
+
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Library implementing a basic result cache</description>
     <url>https://github.com/zepben/results-cache/</url>
@@ -56,19 +57,40 @@
     <dependencies>
         <dependency>
             <groupId>com.zepben</groupId>
-            <artifactId>annotations</artifactId>
-            <version>1.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.zepben</groupId>
             <artifactId>blob-store</artifactId>
-            <version>1.2.0</version>
+            <version>1.4.0-SNAPSHOT3</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.zepben</groupId>
             <artifactId>test-utils</artifactId>
-            <version>1.0.0</version>
+            <version>2.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk</artifactId>
+            <version>1.12.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
