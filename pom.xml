@@ -10,7 +10,7 @@
 
     <groupId>com.zepben</groupId>
     <artifactId>results-cache</artifactId>
-    <version>1.6.0</version>
+    <version>1.7.0-SNAPSHOT1</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Library implementing a basic result cache</description>
